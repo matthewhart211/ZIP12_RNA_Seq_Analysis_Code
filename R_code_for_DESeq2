@@ -1,0 +1,64 @@
+## Install packages
+## NOTE: This step only needs to be performed once. 
+## After you run it the first time all the code will be downloaded to your computer.
+source("https://bioconductor.org/biocLite.R")
+biocLite("DESeq2")
+install.packages("tidyverse")
+
+## Load libraries. This part needs to be done everytime you open Rstudio. 
+## Will tell computer which code to look for.
+library(tidyverse)
+library("DESeq2")
+
+## Read in count matrix and column data. This should open a normal file selection menu. 
+## Simply double click the correct file.
+## They should be the Master_Count_Matrix.csv and Master_Column_IDs.csv files respectively.
+count_table <- read.csv(file.choose(), row.names = "Gene_ID")
+columndata <- read.csv(file.choose())
+
+
+
+## Performing the actual computation of fold change, pvalues, and adjusted pvalues
+## Create experiment looking at condition. 
+## This should probably never change unless we use this data for something other than DE.
+dds <- DESeqDataSetFromMatrix(countData = count_table, colData = columndata, design = ~ Condition) 
+
+## Create DESeq dataset called ddds (this is just an intermediate between experiment creation and results)
+ddds <- DESeq(dds)
+
+## Create result file called results1 which will compare all groups. 
+## Can change fold change cutoff by changing lfcThreshold = value and P-value by changing alpha =.
+results1 <- results(ddds, lfcThreshold = 2, alpha = 0.05)
+## This can also be modified to draw whatever pairwise comparison you want by specifiying them below
+## In this example I am comparing Control1_P group vs. Control1_RA. 
+## To run multiple just make sure you change the variable name ("results1_subset") to something slightly different.
+results1_subset <- results(ddds, contrast=c("Condition", "6CD2_RA", "Control1_RA"), lfcThreshold = 2, alpha = 0.05)
+
+## Print a summary of the results
+summary(results1)
+summary(results1_subset)
+
+## Writing results to a .csv file. Change name in quotations to whatever you want the file to be named.
+write.csv(as.data.frame(results1), file="condition_treated_results.csv")
+
+
+
+## Ways of visualizing experiment results (Doesn't do anything to the data, just helps you look at it)
+## Create MA plot which will display fold change against normalized read count. 
+## Grey vs red indicates signifigance.
+plotMA(results1)
+
+## Create principle component analysis plots. First step creates a data table called "vsd". 
+## Will take a while. Large data frame.
+vsd <- vst(dds, blind=FALSE)
+## Run the above first, then you can create the plots based on the data frame called "vsd".
+## Just change the variable in quotation to see colorations by different groups.
+plotPCA(vsd, intgroup=c("Condition"))
+plotPCA(vsd, intgroup=c("KO"))
+
+## Create a scatter plot of expression by condition. 
+## You can plot this by any other factor listed in the coldata variable
+plotCounts(ddds, gene="<gene_ID>", intgroup="<factor_you_want_to_divide_points_by>")
+## An example of this below will output a plot divided by the sample condition for a gene with ID = 28080. You can look up gene ID's on NCBI for any particular gene of intrest.
+plotCounts(ddds, gene="28080", intgroup="Condition")
+plotCounts(ddds, gene="28080", intgroup="KO")
