@@ -16,8 +16,6 @@ library("DESeq2")
 count_table <- read.csv(file.choose(), row.names = "Gene_ID")
 columndata <- read.csv(file.choose())
 
-
-
 ## Performing the actual computation of fold change, pvalues, and adjusted pvalues
 ## Create experiment looking at condition. 
 ## This should probably never change unless we use this data for something other than DE.
@@ -32,23 +30,25 @@ results1 <- results(ddds, lfcThreshold = 2, alpha = 0.05)
 ## This can also be modified to draw whatever pairwise comparison you want by specifiying them below
 ## In this example I am comparing Control1_P group vs. Control1_RA. 
 ## To run multiple just make sure you change the variable name ("results1_subset") to something slightly different.
-results1_subset <- results(ddds, contrast=c("Condition", "6CD2_RA", "Control1_RA"), lfcThreshold = 2, alpha = 0.05)
+results1_6CD2RAvsControl1RA_LFC2 <- results(ddds, contrast=c("Condition", "6CD2_RA", "Control1_RA"), lfcThreshold = 2, alpha = 0.05)
 
-## Print a summary of the results
+## Print a summary of the results. Just change the variable name in parentheses to change the output summary.
 summary(results1)
-summary(results1_subset)
+summary(results1_6CD2RAvsControl1RA_LFC2)
 
-## Writing results to a .csv file. Change name in quotations to whatever you want the file to be named.
-write.csv(as.data.frame(results1), file="condition_treated_results.csv")
-
+## Writing results to a .csv file. Change name in quotations to whatever you want the file to be named.Change name after "as.data.frame" to whatever results variable we want.
+write.csv(as.data.frame(results1_6CD2RAvsControl1RA_LFC2), file="Master_data_sheet_LFC2_6CD2RAvsControl1RA.csv")
+write.csv(as.data.frame(results1_Control1PvsControl1RA_LFC2), file="Master_data_sheet_LFC2_Control1PvsControl1RA.csv")
+write.csv(as.data.frame(results1_6CD2PvsControl1P_LFC2), file="Master_data_sheet_LFC2_6CD2PvsControl1P.csv")
 
 
 ## Ways of visualizing experiment results (Doesn't do anything to the data, just helps you look at it)
 ## Create MA plot which will display fold change against normalized read count. 
 ## Grey vs red indicates signifigance.
 plotMA(results1)
+plotMA(results1_6CD2RAvsControl1RA)
 
-## Create principle component analysis plots. First step creates a data table called "vsd". 
+## Create principle component analysis plots. First step creates a data frame called "vsd". 
 ## Will take a while. Large data frame.
 vsd <- vst(dds, blind=FALSE)
 ## Run the above first, then you can create the plots based on the data frame called "vsd".
