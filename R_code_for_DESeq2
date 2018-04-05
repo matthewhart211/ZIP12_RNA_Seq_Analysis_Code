@@ -1,6 +1,6 @@
 ## Install packages
 ## NOTE: This step only needs to be performed once. 
-## After you run it the first time all the code will be downloaded to your computer.
+## After you run it the first time all the packages will be downloaded to your computer.
 source("https://bioconductor.org/biocLite.R")
 biocLite("DESeq2")
 install.packages("tidyverse")
